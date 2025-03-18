@@ -96,6 +96,7 @@ public class GhidraTextDecodePlugin extends ProgramPlugin {
 				
 				if (currentSelection.getNumAddresses() == 0) {
 					// Nothing selected
+					currentProgram.endTransaction(id, true);
 					return;
 				}
 				
@@ -105,10 +106,12 @@ public class GhidraTextDecodePlugin extends ProgramPlugin {
 					resFile =Application.getModuleDataFile("DecodeDictionary.txt");
 				} catch (Exception e) {
 					Msg.error(GhidraTextDecodePlugin.class, "Could not find path to DecodeDictionary.txt", e);
+					currentProgram.endTransaction(id, true);
 					return;
 				} 
 				if (resFile == null) {
 					Msg.error(GhidraTextDecodePlugin.class, "Could not find file DecodeDictionary.txt");
+					currentProgram.endTransaction(id, true);
 					return;
 				}
 				
@@ -172,6 +175,7 @@ public class GhidraTextDecodePlugin extends ProgramPlugin {
 		        	int dictIndex = encodedDict.indexOf(encodedData);
 		        	if (dictIndex < 0) {
 		        		Msg.error(GhidraTextDecodePlugin.class, "Unknown encoded symbol: " + encodedData + " at address: " + address.toString());
+		        		currentProgram.endTransaction(id, true);
 		        		return;
 		        	}
 					String decodedData = decodedDict.get(dictIndex);
