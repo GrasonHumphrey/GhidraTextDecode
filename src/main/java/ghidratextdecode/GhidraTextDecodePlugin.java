@@ -179,13 +179,14 @@ public class GhidraTextDecodePlugin extends ProgramPlugin {
 		        		return;
 		        	}
 					String decodedData = decodedDict.get(dictIndex);
-					Msg.info(GhidraTextDecodePlugin.class, decodedData);
+					//Msg.info(GhidraTextDecodePlugin.class, decodedData);
 					if (decodedData.equals("<END>")) {
 						if (arraySize > 0) {
 							arraySize += 1;
 							// Set comment
-							Msg.info(GhidraTextDecodePlugin.class, decodedStr);
-							listing.setComment(startAddress, CodeUnit.PLATE_COMMENT, decodedStr);
+							//Msg.info(GhidraTextDecodePlugin.class, decodedStr);
+							// Don't set a comment, uncomment the below line if you want a comment
+							//listing.setComment(startAddress, CodeUnit.PLATE_COMMENT, decodedStr);
 							// Create array 
 							CreateArrayCmd cmd = new CreateArrayCmd(startAddress, arraySize, byteDataType, byteDataType.getLength());
 							cmd.applyTo(currentProgram);
