@@ -1,4 +1,4 @@
-# GhidraNESTextDecode
+# GhidraTextDecode
 Small decoder tool to translate encoded data in Ghidra to decoded labelled arrays, optionally with comments.
 
 Originally made to help decode non-ASCII text for a <a href="https://github.com/GrasonHumphrey/Earthbound-Zero-Decomp">decompile</a> I'm working on.
