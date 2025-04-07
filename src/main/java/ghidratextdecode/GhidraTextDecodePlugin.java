@@ -157,55 +157,52 @@ public class GhidraTextDecodePlugin extends ProgramPlugin {
         int arraySize = 0;
         for (ghidra.program.model.address.Address address : currentSelection.getAddresses(currentSelection.getMinAddress(), true)) {
         	String encodedData = "";
+            String decodedData = "";
+
 			try {
 				encodedData = String.format("%02X", listing.getDataAt(address).getByte(0) & 0xFF).toLowerCase();
 			} catch (Exception e) {
 				Msg.error(GhidraTextDecodePlugin.class, "Error converting data to string");
 			}
         	//Msg.info(GhidraNESTextDecodePlugin.class, encodedData);
-        	int dictIndex = encodedDict.indexOf(encodedData);
-        	if (dictIndex < 0) {
-        		if (stopOnUnknown) {
-        			Msg.error(GhidraTextDecodePlugin.class, "Unknown encoded symbol: " + encodedData + " at address: " + address.toString());
-	        		currentProgram.endTransaction(id, true);
-	        		return;
-        		}
-        		Msg.info(GhidraTextDecodePlugin.class, "Unknown encoded symbol: " + encodedData + " at address: " + address.toString());
-        		decodedStr += '?';
-        		arraySize += 1;
-        	} else {
-				String decodedData = decodedDict.get(dictIndex);
-				//Msg.info(GhidraTextDecodePlugin.class, decodedData);
-				if (decodedData.equals("<END>")) {
-					if (arraySize > 0) {
-						arraySize += 1;
-						// Set comment
-						//Msg.info(GhidraTextDecodePlugin.class, decodedStr);
-						if (setComment) {
-							listing.setComment(startAddress, CodeUnit.PLATE_COMMENT, decodedStr);
-						}
-						// Create array 
-						CreateArrayCmd cmd = new CreateArrayCmd(startAddress, arraySize, byteDataType, byteDataType.getLength());
-						cmd.applyTo(currentProgram);
-						// Add label
-						AddLabelCmd labelCmd = new AddLabelCmd(startAddress, "STR_" + decodedStr, SourceType.ANALYSIS);
-						labelCmd.applyTo(currentProgram);
-						
-						decodedStr = "";
-						arraySize = 0;
-						startAddress = address.add(1);
-					} else {
-						startAddress = address.add(1);
-						decodedStr = "";
-						arraySize = 0;
+			int dictIndex = encodedDict.indexOf(encodedData);
+			if (dictIndex < 0) {
+				if (stopOnUnknown) {
+					Msg.error(GhidraTextDecodePlugin.class, "Unknown encoded symbol: " + encodedData + " at address: " + address.toString());
+					currentProgram.endTransaction(id, true);
+					return;
+				}
+				Msg.info(GhidraTextDecodePlugin.class, "Unknown encoded symbol: " + encodedData + " at address: " + address.toString());
+				decodedData = "?";
+			} else {
+				decodedData = String.copyValueOf(decodedDict.get(dictIndex).toCharArray());
+			}
+			arraySize += 1;
+
+			if (decodedData.equals("<END>")) {
+				if (arraySize > 0) {
+					// Set comment
+					//Msg.info(GhidraTextDecodePlugin.class, decodedStr);
+					if (setComment) {
+						listing.setComment(startAddress, CodeUnit.PLATE_COMMENT, decodedStr);
 					}
-				} else {
-					decodedStr += decodedData;
-					arraySize += 1;
-					}
-	        	}	
-	        }
-		
+					// Create array 
+					CreateArrayCmd cmd = new CreateArrayCmd(startAddress, arraySize, byteDataType, byteDataType.getLength());
+					cmd.applyTo(currentProgram);
+					// Add label
+					AddLabelCmd labelCmd = new AddLabelCmd(startAddress, "STR_" + decodedStr, SourceType.ANALYSIS);
+					labelCmd.applyTo(currentProgram);
+				}	
+				startAddress = address.add(1);
+				decodedStr = "";
+				arraySize = 0;
+			} else {
+				decodedStr += decodedData;
+			}
+        }
+
+
+
 		// End transaction
 		currentProgram.endTransaction(id, true);
 	}

@@ -2,7 +2,7 @@
 # Terminator
 00=<END>
 01=<LINE>
-02=<WAIT THEN OVERWRITE>
+02=<WAIT_THEN_OVERWRITE>
 03=<WAIT>
 
 # Letters and numbers
