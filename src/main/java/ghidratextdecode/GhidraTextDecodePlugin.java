@@ -158,6 +158,7 @@ public class GhidraTextDecodePlugin extends ProgramPlugin {
         for (ghidra.program.model.address.Address address : currentSelection.getAddresses(currentSelection.getMinAddress(), true)) {
         	String encodedData = "";
             String decodedData = "";
+            boolean goodDataFound = false;
 
 			try {
 				encodedData = String.format("%02X", listing.getDataAt(address).getByte(0) & 0xFF).toLowerCase();
@@ -176,10 +177,15 @@ public class GhidraTextDecodePlugin extends ProgramPlugin {
 				decodedData = "?";
 			} else {
 				decodedData = String.copyValueOf(decodedDict.get(dictIndex).toCharArray());
+				goodDataFound = true;
 			}
 			arraySize += 1;
 
-			if (decodedData.equals("<END>")) {
+			if (decodedData.equals("<END>") || (address.equals(currentSelection.getMaxAddress()) && goodDataFound)) {
+				if (!decodedData.equals("<END>")) {
+					decodedStr += decodedData;
+				}
+				
 				if (arraySize > 0) {
 					// Set comment
 					//Msg.info(GhidraTextDecodePlugin.class, decodedStr);
@@ -196,6 +202,7 @@ public class GhidraTextDecodePlugin extends ProgramPlugin {
 				startAddress = address.add(1);
 				decodedStr = "";
 				arraySize = 0;
+				goodDataFound = false;
 			} else {
 				decodedStr += decodedData;
 			}
